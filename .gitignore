@@ -1,0 +1,4 @@
+server/.vscode
+server/build
+ws-proxy/.vscode
+ws-proxy/node_modules

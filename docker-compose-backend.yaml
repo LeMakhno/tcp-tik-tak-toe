@@ -1,0 +1,15 @@
+services:
+  game-server:
+    container_name: game-server
+    build: server
+    environment:
+      - PORT=6600
+  ws-proxy:
+    container_name: ws-proxy
+    build: ws-proxy
+    ports:
+      - 2800:2800
+    environment:
+      - PORT=2800
+      - TARGET_HOST=game-server
+      - TARGET_PORT=6600

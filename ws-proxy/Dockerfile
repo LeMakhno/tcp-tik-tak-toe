@@ -1,0 +1,12 @@
+FROM node:18.18
+
+ENV PORT=2222
+ENV TARGET_HOST='testhost'
+ENV TARGET_PORT='1234'
+
+WORKDIR /app
+COPY . .
+
+RUN npm ci
+
+ENTRYPOINT node src/main.js
