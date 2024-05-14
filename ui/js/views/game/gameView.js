@@ -104,8 +104,6 @@ function createCellClickHandler(idx) {
 
 function addFeed() {
     feed = gameViewBuilder.createFeed()
-    // gameBoard.board.appendChild(feed)
-    
     gameBoard.board.after(feed)
 }
 
@@ -131,13 +129,6 @@ function deactivateCells() {
     })
 }
 
-function removeGameView() {
-    controlsPanel.root.remove()
-    controlsPanel = undefined
-    gameBoard.board.remove()
-    gameBoard = undefined
-}
-
 function clearBoard() {
     gameBoard.cells.forEach(cell => {
         cell.style.backgroundImage = 'none'
@@ -147,6 +138,21 @@ function clearBoard() {
 function removeNicknamePanel() {
     nicknamePanel.root.remove()
     nicknamePanel = undefined
+}
+
+function removeControlsPanel() {
+    controlsPanel.root.remove()
+    controlsPanel = undefined
+}
+
+function removeFeed() {
+    feed.remove()
+    feed = undefined
+}
+
+function removeBoard() {
+    gameBoard.board.remove()
+    gameBoard = undefined
 }
 
 function showNicknameErrorMessage(message, visibilityMs) {
@@ -215,18 +221,16 @@ function updateBoard(payload) {
 function onWebSocketClosed() {
     deactivateCells()
     if (controlsPanel) {
-        controlsPanel.root.remove()
-        controlsPanel = undefined
+        removeControlsPanel()
     }
     if (nicknamePanel) {
         removeNicknamePanel()
     }
     if (feed) {
-        addErrFeedMessage('Disconnected')
+        removeFeed()
     }
     if (gameBoard) {
-        gameBoard.board.remove()
-        gameBoard = undefined
+        removeBoard()
     }
     setUpConnectionView()
     showConnectionErrorMessage('Disconnected', 5000)
