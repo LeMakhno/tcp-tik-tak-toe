@@ -1,7 +1,9 @@
 services:
   game-server:
     container_name: game-server
-    build: server
+    platform: "linux/amd64"
+    build:
+      context: server
     environment:
       - PORT=6600
   ws-proxy:
