@@ -11,6 +11,7 @@ SOURCES := $(shell find $(SRC_DIR) -type f -name "*.c")
 all: clean $(BUILD_DIR)/${EXECUTABLE}
 
 $(BUILD_DIR)/${EXECUTABLE}:
+	mkdir $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(SOURCES) -L$(LIBS_DIR) -lutils -o $(BUILD_DIR)/$(EXECUTABLE)
 
 clean:
