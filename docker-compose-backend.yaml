@@ -1,6 +1,7 @@
 services:
   game-server:
     container_name: game-server
+    platform: "linux/amd64"
     build: server
     environment:
       - PORT=6600

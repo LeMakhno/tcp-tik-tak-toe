@@ -11,9 +11,9 @@ export function createTitle() {
     return title
 }
 
-export function createConnectionAddressBlock() {
-    const inputBlock = document.createElement('div')
-    inputBlock.id = 'connect-address-block'
+export function createConnectionInputBlock() {
+    const root = document.createElement('div')
+    root.id = 'connect-address-block'
 
     const hostInput = document.createElement('input')
     hostInput.type = 'text'
@@ -33,11 +33,11 @@ export function createConnectionAddressBlock() {
     portInput.id = 'connect-port'
     portInput.placeholder = 'Port'
 
-    inputBlock.appendChild(hostInput)
-    inputBlock.appendChild(colon)
-    inputBlock.appendChild(portInput)
+    root.appendChild(hostInput)
+    root.appendChild(colon)
+    root.appendChild(portInput)
 
-    return { inputBlock, hostInput, portInput }
+    return { root, hostInput, portInput }
 }
 
 export function createErrorMessage() {
