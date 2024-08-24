@@ -1,5 +1,5 @@
 import * as connectionViewBuilder from './connectionViewBuilder.js'
-import { hideSpinner, showSpinner } from '../../spinner.js'
+import { hideSpinner, showSpinner } from '../spinner.js'
 import { validateConnectionInput } from '../../validations.js'
 import { wsConnect } from '../../wsConnector.js'
 import { setUpGameView } from '../game/gameView.js'
@@ -17,7 +17,7 @@ function setUpConnectionView() {
         inputBlock,
         hostInput,
         portInput
-    } = connectionViewBuilder.createConnectionAddressBlock()
+    } = connectionViewBuilder.createConnectionInputBlock()
 
     connectionHostInput = hostInput
     connectionPortInput = portInput
