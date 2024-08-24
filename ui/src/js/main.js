@@ -1,4 +1,4 @@
-import ConnectionView from './views/connection/connectionViewV2.js'
+import ConnectionView from './views/connection/connectionView.js'
 
 document.addEventListener('DOMContentLoaded', () => {
     new ConnectionView().render()

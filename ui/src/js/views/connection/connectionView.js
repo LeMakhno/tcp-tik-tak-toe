@@ -1,5 +1,6 @@
-import { validateConnectionInput } from '../../validations.js'
-import { wsConnect } from '../../wsConnector.js'
+import { wsConnect } from '../../utils/wsConnector.js'
+import { validateConnectionInput } from '../../utils/validations.js'
+import GameView from '../game/gameView.js'
 import { hideSpinner, showSpinner } from '../spinner.js'
 import {
     createConnectButton,
@@ -8,7 +9,6 @@ import {
     createRoot,
     createTitle
 } from './connectionViewBuilder.js'
-import GameView from '../game/gameViewV2.js'
 
 export default class ConnectionView {
 

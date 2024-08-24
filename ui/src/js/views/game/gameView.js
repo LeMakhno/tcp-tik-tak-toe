@@ -1,4 +1,5 @@
-import { validateNicknameInput } from "../../validations.js"
+import { validateNicknameInput } from "../../utils/validations.js"
+import ConnectionView from "../connection/connectionView.js"
 import {
     createBoardWithCells,
     createControls,
@@ -7,6 +8,9 @@ import {
     createNicknamePanel,
     createOkFeedMessage
 } from "./gameViewBuilder.js"
+
+const circle = "url('../src/img/circle.svg')"
+const cross = "url('../src/img/cross.svg')"
 
 export default class GameView {
 
@@ -229,8 +233,9 @@ export default class GameView {
         if (this.gameBoard) {
             this.removeBoard()
         }
-        this.setUpConnectionView()
-        this.showConnectionErrorMessage('Disconnected', 5000)
+        const connectionView = new ConnectionView();
+        connectionView.render()
+        connectionView.showConnectionErrorMessage('Disconnected', 5000)
     }
     
     onRegisterNicknameClick() {
