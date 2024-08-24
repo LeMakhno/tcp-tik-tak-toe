@@ -9,8 +9,8 @@ import {
     createOkFeedMessage
 } from "./gameViewBuilder.js"
 
-const circle = "url('../src/img/circle.svg')"
-const cross = "url('../src/img/cross.svg')"
+const circle = "url('img/circle.svg')"
+const cross = "url('img/cross.svg')"
 
 export default class GameView {
 
