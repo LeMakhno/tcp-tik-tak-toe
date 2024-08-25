@@ -1,13 +1,13 @@
-import { validateNicknameInput } from "../../utils/validations.js"
-import ConnectionView from "../connection/connectionView.js"
+import spinner from "../../utils/Spinner.js"
+import GameController from "./GameController.js"
 import {
     createBoardWithCells,
     createControls,
     createErrFeedMessage,
     createFeed,
-    createNicknamePanel,
+    createNicknameRegistrationPanel,
     createOkFeedMessage
-} from "./gameViewBuilder.js"
+} from "./GameViewBuilder.js"
 
 const circle = "url('img/circle.svg')"
 const cross = "url('img/cross.svg')"
@@ -15,20 +15,17 @@ const cross = "url('img/cross.svg')"
 export default class GameView {
 
     constructor(webSocket) {
-        this.webSocket = webSocket
+        this.controller = new GameController(this, webSocket)
     }
 
     render() {
         this.gameBoard = createBoardWithCells()
-        this.nicknamePanel = createNicknamePanel()
+        this.nicknamePanel = createNicknameRegistrationPanel()
 
         this.nicknamePanel.sendButton.onclick = this.onRegisterNicknameClick.bind(this)
-        this.webSocket.onmessage = this.onNicknameRegistrationResponse.bind(this)
 
         document.body.prepend(this.gameBoard.board)
         document.body.prepend(this.nicknamePanel.root)
-
-        this.webSocket.onclose = this.onWebSocketClosed.bind(this)
     }
 
     setUpControlsPanel() {
@@ -43,40 +40,18 @@ export default class GameView {
     
         document.body.appendChild(this.controlsPanel.root)
     }
-    
+
     onJoinClick() {
-        const { joinInput } = this.controlsPanel
-    
-        const gameId = joinInput.value?.trim()
-    
-        if (!gameId || !gameId.length) {
-            joinInput.style.backgroundColor = 'red'
-            setTimeout(() => {
-                joinInput.style.backgroundColor = 'white'
-            }, 1000)
-            return
-        }
-    
-        joinInput.value = null
-    
-        this.webSocket.send(JSON.stringify({
-            command: 'join',
-            args: [gameId]
-        }))
+        this.controller.join(this.controlsPanel.joinInput.value)
+        this.controlsPanel.joinInput.value = null
     }
     
     onCreateGameClick() {
-        this.webSocket.send(JSON.stringify({
-            command: 'init',
-            args: []
-        }))
+        this.controller.createGame()
     }
     
     onStatusClick() {
-        this.webSocket.send(JSON.stringify({
-            command: 'status',
-            args: []
-        }))
+        this.controller.getStatus()
     }
     
     onClearBoardClick() {
@@ -84,23 +59,12 @@ export default class GameView {
     }
     
     onLeaveClick() {
-        this.webSocket.send(JSON.stringify({
-            command: 'leave',
-            args: []
-        }))
+        this.controller.leaveGame()
+        this.clearBoard()
     }
     
     onDisconnectClick() {
-        this.webSocket.close(1000)
-    }
-    
-    createCellClickHandler(idx) {
-        return () => {
-            this.webSocket.send(JSON.stringify({
-                command: 'put',
-                args: [idx]
-            }))
-        }
+        this.controller.disconnect()
     }
     
     addFeed() {
@@ -115,18 +79,20 @@ export default class GameView {
     addErrFeedMessage(data) {
         this.feed.prepend(createErrFeedMessage(data))
     }
-    
-    activeteCells() {
+
+    activateCells() {
         this.gameBoard.cells.forEach((cell, idx) => {
             cell.style.cursor = 'pointer'
-            cell.onclick = this.createCellClickHandler(idx + 1)
+            cell.onclick = () => {
+                this.controller.actOnCell(idx + 1)
+            }
         })
     }
     
     deactivateCells() {
         this.gameBoard.cells.forEach((cell, idx) => {
             cell.style.cursor = 'not-allowed'
-            cell.onclick = undefined
+            cell.onclick = null
         })
     }
     
@@ -166,47 +132,7 @@ export default class GameView {
         }
     }
     
-    onNicknameRegistrationResponse(message) {
-        const payload = JSON.parse(message.data)
-    
-        if (payload.status !== 'ok') {
-            this.showNicknameErrorMessage(payload.data, 5000)
-            return
-        }
-    
-        this.removeNicknamePanel()
-        this.setUpControlsPanel()
-        this.activeteCells()
-        this.addFeed()
-        this.addOkFeedMessage(payload.data)
-        this.webSocket.onmessage = this.onIncomingMessage.bind(this)
-    }
-    
-    onIncomingMessage(message) {
-        const payload = JSON.parse(message.data)
-    
-        if (payload.type === 'board') {
-            this.updateBoard(payload.data)
-            return
-        }
-    
-        if (payload.status === 'ok') {
-            this.addOkFeedMessage(payload.data)
-        } else {
-            this.addErrFeedMessage(payload.data)
-        }
-    }
-    
-    updateBoard(payload) {
-        const possibleBoardSymbols = 'xo '
-        let boardSymbols = []
-    
-        for (let i = 0; i < payload.length; i++) {
-            if (possibleBoardSymbols.includes(payload.charAt(i))) {
-                boardSymbols.push(payload.charAt(i))
-            }
-        }
-    
+    updateBoard(boardSymbols) {    
         this.gameBoard.cells.forEach((cell, idx) => {
             const boardSymbol = boardSymbols[idx]
             if (boardSymbol === 'x') {
@@ -218,9 +144,8 @@ export default class GameView {
             }
         })
     }
-    
-    onWebSocketClosed() {
-        this.deactivateCells()
+
+    remove() {
         if (this.controlsPanel) {
             this.removeControlsPanel()
         }
@@ -233,24 +158,32 @@ export default class GameView {
         if (this.gameBoard) {
             this.removeBoard()
         }
-        const connectionView = new ConnectionView();
-        connectionView.render()
-        connectionView.showConnectionErrorMessage('Disconnected', 5000)
     }
     
     onRegisterNicknameClick() {
-        const nickname = this.nicknamePanel.nicknameInput.value
-    
-        const { isValid, message } = validateNicknameInput(nickname)
-    
-        if (!isValid) {
-            this.showNicknameErrorMessage(message, 5000)
-            return
-        }
-    
-        this.webSocket.send(JSON.stringify({
-            command: 'reg',
-            args: [nickname]
-        }))
+        this.controller.registerNickname(this.nicknamePanel.nicknameInput.value)
+    }
+
+    showSpinner() {
+        spinner.showSpinner()
+    }
+
+    hideSpinner() {
+        spinner.hideSpinner()
+    }
+
+    disableRegisterNicknameButton() {
+        this.nicknamePanel.sendButton.disabled = true
+    }
+
+    enableRegisterNicknameButton() {
+        this.nicknamePanel.sendButton.disabled = false
+    }
+
+    setJoinGameInputErrorColor() {
+        this.controlsPanel.joinInput.style.backgroundColor = 'red'
+        setTimeout(() => {
+            this.controlsPanel.joinInput.style.backgroundColor = 'white'
+        }, 1000)
     }
 }

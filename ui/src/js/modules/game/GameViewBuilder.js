@@ -56,7 +56,7 @@ function createFeedMessage(messageClass, text) {
     return message
 }
 
-export function createNicknamePanel() {
+export function createNicknameRegistrationPanel() {
     const root = document.createElement('div')
     root.id = 'nickname-panel'
     root.classList.add('shadowed')
