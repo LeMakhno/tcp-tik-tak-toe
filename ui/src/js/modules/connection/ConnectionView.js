@@ -1,16 +1,18 @@
-import { wsConnect } from '../../utils/wsConnector.js'
-import { validateConnectionInput } from '../../utils/validations.js'
-import GameView from '../game/gameView.js'
-import { hideSpinner, showSpinner } from '../spinner.js'
+import spinner from '../../utils/Spinner.js'
+import ConnectionController from './ConnectionController.js'
 import {
     createConnectButton,
     createConnectionInputBlock,
     createErrorMessage,
     createRoot,
     createTitle
-} from './connectionViewBuilder.js'
+} from './ConnectionViewBuilder.js'
 
 export default class ConnectionView {
+
+    constructor() {
+        this.controller = new ConnectionController(this)
+    }
 
     render() {
         this.root = createRoot()
@@ -25,7 +27,7 @@ export default class ConnectionView {
         this.root.appendChild(this.connectionButton)
 
         this.connectionButton.onclick = this.onConnectClick.bind(this)
-    
+
         document.body.prepend(this.root)
     }
 
@@ -51,32 +53,23 @@ export default class ConnectionView {
         this.connectionButton.disabled = false
     }
 
-    async onConnectClick() {
-        const host = this.connectionInputBlock.hostInput.value
-        const port = this.connectionInputBlock.portInput.value
-    
-        const { isValid, message } = validateConnectionInput(host, port)
-        
-        if (!isValid) {
-            this.showConnectionErrorMessage(message, 2000)
-            return
-        }
-    
-        this.disableConnectionButton()
-        showSpinner()
-    
-        let webSocket
-        try {
-            webSocket = await wsConnect(host, port)
-        } catch (err) {
-            this.showConnectionErrorMessage(err.message, 5000)
-            return
-        } finally {
-            hideSpinner()
-            this.enableConnectionButton()
-        }
-    
-        this.remove()
-        new GameView(webSocket).render()
+    showSpinner() {
+        spinner.showSpinner()
+    }
+
+    hideSpinner() {
+        spinner.hideSpinner()
+    }
+
+    getHostInputValue() {
+        return this.connectionInputBlock.hostInput.value
+    }
+
+    getPortInputValue() {
+        return this.connectionInputBlock.portInput.value
+    }
+
+    onConnectClick() {
+        this.controller.openWebSocketConnection()
     }
 }

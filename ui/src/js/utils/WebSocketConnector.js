@@ -1,6 +1,6 @@
 const connectionTimeoutMs = 5000
 
-function wsConnect(host, port) {
+export default function wsConnect(host, port) {
     let connectionTimedOut = false
 
     return new Promise((resolve, reject) => {
@@ -38,5 +38,3 @@ function wsConnect(host, port) {
         }
     })
 }
-
-export { wsConnect }
