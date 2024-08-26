@@ -19,12 +19,8 @@ export default class GameView {
     }
 
     render() {
-        this.gameBoard = createBoardWithCells()
         this.nicknamePanel = createNicknameRegistrationPanel()
-
         this.nicknamePanel.sendButton.onclick = this.onRegisterNicknameClick.bind(this)
-
-        document.body.prepend(this.gameBoard.board)
         document.body.prepend(this.nicknamePanel.root)
     }
 
@@ -37,8 +33,11 @@ export default class GameView {
         this.controlsPanel.clearBoardButton.onclick = this.onClearBoardClick.bind(this)
         this.controlsPanel.leaveButton.onclick = this.onLeaveClick.bind(this)
         this.controlsPanel.disconnectButton.onclick = this.onDisconnectClick.bind(this)
+
+        this.gameBoard = createBoardWithCells()
     
         document.body.appendChild(this.controlsPanel.root)
+        document.body.prepend(this.gameBoard.board)
     }
 
     onJoinClick() {
@@ -90,7 +89,7 @@ export default class GameView {
     }
     
     deactivateCells() {
-        this.gameBoard.cells.forEach((cell, idx) => {
+        this.gameBoard.cells.forEach((cell) => {
             cell.style.cursor = 'not-allowed'
             cell.onclick = null
         })
