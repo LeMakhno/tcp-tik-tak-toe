@@ -60,7 +60,6 @@ export default class GameController {
         const payload = JSON.parse(message.data)
 
         if (payload.type === 'board') {
-            // this.gameView.updateBoard(payload.data)
             this.gameView.updateBoard(this.parseBoard(payload.data))
             return
         }
